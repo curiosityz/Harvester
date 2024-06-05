@@ -9,6 +9,9 @@ Rails.application.routes.draw do
   resources :datasets
   resources :terms
   resources :dataitems
+  # NLP Analysis routes
+  get 'nlp_analysis/analyze_all', to: 'nlp_analysis#analyze_all'
+  get 'nlp_analysis/analyze_document', to: 'nlp_analysis#analyze_document'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

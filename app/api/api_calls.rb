@@ -1,4 +1,20 @@
 module ApiCalls
+  # Supabase integration methods
+  def supabase_get_documents(table_name)
+    response = SupabaseClient.from(table_name).select("*").execute
+    response.data
+  end
+
+  def supabase_add_document(table_name, document)
+    response = SupabaseClient.from(table_name).insert(document).execute
+    response.data
+  end
+
+  def supabase_remove_document(table_name, document_id)
+    response = SupabaseClient.from(table_name).delete().match({id: document_id}).execute
+    response.data
+  end
+
   def get_total_docs(index_name)
     http = Curl.get("#{ENV['DOCMANAGER_URL']}/get_total_docs", {:index_name => index_name})
     return JSON.parse(http.body_str)

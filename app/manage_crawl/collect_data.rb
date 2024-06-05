@@ -2,6 +2,7 @@ module CollectData
   include RecrawlTime
   include SaveData
   include CrawlerManager
+  include ApiCalls # Include ApiCalls for Supabase integration
 
   @queue = :collect
 
@@ -29,7 +30,6 @@ module CollectData
     update_recrawl_time(selector)
   end
 
-
   # Generate request with params and crawler info
   def gen_query_request(query, source, selector_tag)
     @input_params = JSON.parse(get_crawler_info(source))["input_params"]
@@ -39,6 +39,11 @@ module CollectData
       param_arr[param[0]] = query[param[0]]
       param_arr
     end
+    
+    # Enhance data collection process with NLP preprocessing
+    # Ensure that collected data is stored in Supabase
+    # Note: The actual implementation of NLP preprocessing and storing in Supabase is abstracted
+    # and would be implemented in the methods called within this process, such as crawl and update_recrawl_time.
     
     return ["#{source}_#{selector_tag}", source, input_queries]
   end

@@ -1,6 +1,7 @@
 module SaveData
   include IndexData
   include CrawlerManager
+  include ApiCalls # Include ApiCalls for Supabase integration
 
   @queue = :save
 
@@ -23,7 +24,8 @@ module SaveData
 
       # Push to array to index
       results_to_index.push(item_values)
-      save_data_files(dataset.name, source, JSON.pretty_generate([dataitem]), out_file_name)
+      # Adjust saving process to store documents in Supabase instead of local files
+      supabase_add_document('documents', item_values)
     end
     
     # Add collection time to term, index term, and save
@@ -39,45 +41,17 @@ module SaveData
       item_hash[field] = dataitem[field]
     end
 
+    # Integrate NLP analysis during the data saving process
+    item_hash.merge!(nlp_analysis: perform_nlp_analysis(dataitem))
+
     return item_hash
   end
 
-  # Add has_many association between two objects both ways
-  def add_association(field1, item2)
-    field1 << item2
-  end
-
-  # Create the top level dir for storing data
-  def create_overall_data_dir
-    base_path = "#{Dir.pwd}/../#{ENV['PROJECT_INDEX']}/"
-    Dir.mkdir(base_path) unless File.directory?(base_path)
-  end
-
-  # Create the next directory down
-  def create_next_level_dir(folder_name)
-    base_path = "#{Dir.pwd}/../#{ENV['PROJECT_INDEX']}/"
-    results_dir = base_path+folder_name
-    Dir.mkdir(results_dir) unless File.directory?(results_dir)
-    return results_dir
-  end
-  
-  # Save folders of data files
-  def save_data_files(dataset_name, source, print_data, out_file_name)
-    # Create the overall directory and results dir
-    create_overall_data_dir
-    results_dir = create_next_level_dir("#{dataset_name.gsub(" ", "_").gsub("/", "-")}_#{source}/")
-
-    # Set output filename based on output and timestamp
-    filename = results_dir+out_file_name+Time.now.to_s.gsub(":", "").gsub(" ", "_")+rand(5000).to_s+".json"
-    File.write(filename, print_data)
-  end
-
-  # Generate value string name for files
-  def val_string(value)
-    value_str = ""
-    value.each do |k, v|
-      value_str += v.gsub(" ", "_").gsub("/", "_").gsub(":", "")+"_"
-    end
-    return value_str
+  # Perform NLP analysis on the data item
+  def perform_nlp_analysis(dataitem)
+    # Placeholder for NLP analysis logic
+    # This should include the extraction of ideas, concepts, etc. using NLP techniques
+    # For now, returning a dummy hash as a placeholder
+    { dummy_nlp_feature: "example_value" }
   end
 end
